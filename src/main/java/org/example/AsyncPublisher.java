@@ -20,19 +20,24 @@ import com.hivemq.client.mqtt.datatypes.MqttQos;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
 
+import com.hivemq.client.mqtt.mqtt5.Mqtt5ClientBuilder;
 import picocli.CommandLine;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 
 @CommandLine.Command(name = "publish", mixinStandardHelpOptions = true,
         description = "publishes N messages to M topics")
 public class AsyncPublisher implements Callable<Integer> {
+    private long startTime;
+    private long endTime;
     @CommandLine.Option(names = {"--host"}, description = "MQTT broker host (Default: localhost)", required = false)
     String host = "localhost";
     @CommandLine.Option(names = {"--port"}, description = "MQTT broker port (Default: 1883)", required = false)
     int port = 1883;
+
+    @CommandLine.Option(names = {"--secure"}, description = "Use TLS (Default: false)", required = false)
+    boolean secure =false;
 
     @CommandLine.Option(names = {"-u", "--user"}, description = "Username", defaultValue = "", required = false)
     String user = "";
@@ -52,13 +57,14 @@ public class AsyncPublisher implements Callable<Integer> {
     @CommandLine.Option(names = {"--qos"}, description = "QoS (Default: 1)", required = false)
     int qos=1;
 
-    @CommandLine.Option(names = {"-v"}, description = "verbose output")
-    boolean verbose;
+    @CommandLine.Option(names = {"-v"}, description = "verbose output (Default)", required = false)
+    boolean verbose = true;
 
     @Override
     public Integer call() throws Exception {
         System.out.println("host: " + host);
         System.out.println("port: " + port);
+        System.out.println("secure: " + secure);
         System.out.println("user: " + user);
         System.out.println("password: " + password);
         System.out.println("topicPrefix: " + topicPrefix);
@@ -66,10 +72,19 @@ public class AsyncPublisher implements Callable<Integer> {
         System.out.println("messageNumber: " + messageNumber);
         System.out.println("qos: " + qos);
 
-        final Mqtt5AsyncClient client = Mqtt5Client.builder()
+        final Mqtt5ClientBuilder clientBuilder = Mqtt5Client.builder()
+                .identifier("IAmJavaClient")
                 .serverHost(host)
-                .serverPort(port)
-                .buildAsync();
+                .serverPort(port);
+
+        if (secure) {
+            clientBuilder.sslWithDefaultConfig();
+        }
+
+        final Mqtt5AsyncClient client = clientBuilder.buildAsync();
+
+        // Record the start time
+        startTime = System.nanoTime();
 
         CompletableFuture<Void> publishFuture = client.connectWith()
                 .simpleAuth()
@@ -85,26 +100,41 @@ public class AsyncPublisher implements Callable<Integer> {
 
         publishFuture.get(); // Wait for all tasks to complete
 
+        // Record the end time
+        endTime = System.nanoTime();
+
+        long totalTimeNano = endTime - startTime;
+        double totalTimeMillis = totalTimeNano / 1_000_000.0; // Convert to milliseconds
+        System.out.println("Total time taken: " + totalTimeMillis + " ms");
+
+        double averageTimePerMessage = totalTimeMillis / messageNumber;
+        System.out.println("Average time per message: " + averageTimePerMessage + " ms");
+
         return 0;
     }
 
     private CompletableFuture<Void> publishMessages(Mqtt5AsyncClient client) {
         CompletableFuture<Void> publishFuture = CompletableFuture.completedFuture(null);
         int messagesPerTopic = (int) Math.ceil((double) messageNumber / topicNumber);
+        int messageCounter = 0; // Initialize the message counter
 
         for (int topicIndex = 0; topicIndex < topicNumber ; topicIndex++) {
             for (int messageIndex = 0; messageIndex < messagesPerTopic; messageIndex++) {
                 final int currentTopicIndex = topicIndex;
                 final int currentMessageIndex = messageIndex;
                 final String currentTopic = topicPrefix + currentTopicIndex;
+                final int sequentialMessageNumber = messageCounter++; // Increment the counter
 
                 publishFuture = publishFuture.thenCompose(v -> client.publishWith()
                                 .topic(currentTopic)
                                 .payload(("Message " + currentMessageIndex).getBytes())
                                 .qos(MqttQos.fromCode(qos))
                                 .send())
-                        .thenAccept(publishResult -> System.out.println("Published message " +
-                                currentMessageIndex + " to topic " + currentTopic));
+                        .thenAccept(publishResult -> {
+                            if (verbose) {
+                                System.out.println("Published " + sequentialMessageNumber + " / " + messageNumber);
+                            }
+                        });
             }
         }
 
