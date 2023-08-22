@@ -71,7 +71,7 @@ public class AsyncPublisher implements Callable<Integer> {
                 .serverPort(port)
                 .buildAsync();
 
-        client.connectWith()
+        CompletableFuture<Void> publishFuture = client.connectWith()
                 .simpleAuth()
                 .username(user)
                 .password(password.getBytes())
@@ -83,11 +83,7 @@ public class AsyncPublisher implements Callable<Integer> {
                 .thenCompose(v -> client.disconnect())
                 .thenAccept(v -> System.out.println("disconnected"));
 
-        /*System.out.println("see that everything above is async");
-        for (int i = 0; i < 5; i++) {
-            TimeUnit.MILLISECONDS.sleep(1000);
-            System.out.println("...");
-        }*/
+        publishFuture.get(); // Wait for all tasks to complete
 
         return 0;
     }
