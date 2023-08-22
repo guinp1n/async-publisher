@@ -128,7 +128,8 @@ public class AsyncPublisher implements Callable<Integer> {
             System.out.println("Average time per message: " + averageTimePerMessage + " ms");
         }
 
-        System.out.println(qos + " " + messageNumber + " " + topicNumber + " " + topicPrefix + " " + totalTimeMillis + " " + averageTimePerMessage);
+        System.out.println(String.format("%s,%d,%d,%s,%.2f,%.2f",
+                qos, messageNumber, topicNumber, topicPrefix, totalTimeMillis, averageTimePerMessage));
 
         return 0;
     }
