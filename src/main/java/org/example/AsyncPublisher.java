@@ -39,10 +39,10 @@ public class AsyncPublisher implements Callable<Integer> {
     @CommandLine.Option(names = {"--secure"}, description = "Use TLS (Default: false)", required = false)
     boolean secure =false;
 
-    @CommandLine.Option(names = {"-u", "--user"}, description = "Username", defaultValue = "", required = false)
+    @CommandLine.Option(names = {"--user"}, description = "Username", defaultValue = "", required = false)
     String user = "";
 
-    @CommandLine.Option(names = {"-pw", "--password"}, description = "Passphrase", arity = "0..1", interactive = true, defaultValue = "", required = false)
+    @CommandLine.Option(names = {"--password"}, description = "Passphrase", arity = "0..1", interactive = true, defaultValue = "", required = false)
     String password = "";
 
     @CommandLine.Option(names = {"--topicPrefix"}, description = "Topic prefix (Default: 'test/')", required = false)
@@ -57,20 +57,26 @@ public class AsyncPublisher implements Callable<Integer> {
     @CommandLine.Option(names = {"--qos"}, description = "QoS (Default: 1)", required = false)
     int qos=1;
 
-    @CommandLine.Option(names = {"--silent"}, description = "Silence some excessive output", required = false)
-    boolean silent = false;
+    @CommandLine.Option(names = {"--verbose"}, description = "Verbose output", required = false)
+    boolean verbose = false;
 
     @Override
     public Integer call() throws Exception {
-        System.out.println("host: " + host);
-        System.out.println("port: " + port);
-        System.out.println("secure: " + secure);
-        System.out.println("user: " + user);
-        System.out.println("password: " + password);
-        System.out.println("topicPrefix: " + topicPrefix);
-        System.out.println("topicNumber: " + topicNumber);
-        System.out.println("messageNumber: " + messageNumber);
-        System.out.println("qos: " + qos);
+        if (verbose) {
+            System.out.println("host: " + host);
+            System.out.println("port: " + port);
+            System.out.println("secure: " + secure);
+            System.out.println("user: " + user);
+            System.out.println("password: " + password);
+            System.out.println("topicPrefix: " + topicPrefix);
+            System.out.println("topicNumber: " + topicNumber);
+            System.out.println("messageNumber: " + messageNumber);
+            System.out.println("qos: " + qos);
+        }
+
+        if (messageNumber < topicNumber){
+            topicNumber=messageNumber;
+        }
 
         final Mqtt5ClientBuilder clientBuilder = Mqtt5Client.builder()
                 .identifier("IAmJavaClient")
@@ -92,11 +98,19 @@ public class AsyncPublisher implements Callable<Integer> {
                 .password(password.getBytes())
                 .applySimpleAuth()
                 .send()
-                .thenAccept(connAck -> System.out.println("connected " + connAck))
+                .thenAccept(connAck -> {
+                    if (verbose) {
+                        System.out.println("connected " + connAck);
+                    }
+                })
                 .thenCompose(connAck -> publishMessages(client))
-                .thenAccept(publishResult -> System.out.println("published " + publishResult != null ? publishResult : ""))
+                .thenAccept(publishResult -> {
+                    if (verbose){
+                        System.out.println("published " + (publishResult != null ? publishResult : ""));
+                    }
+                })
                 .thenCompose(v -> client.disconnect())
-                .thenAccept(v -> System.out.println("disconnected"));
+                .thenAccept(v -> { if (verbose){System.out.println("disconnected");}});
 
         publishFuture.get(); // Wait for all tasks to complete
 
@@ -105,10 +119,16 @@ public class AsyncPublisher implements Callable<Integer> {
 
         long totalTimeNano = endTime - startTime;
         double totalTimeMillis = totalTimeNano / 1_000_000.0; // Convert to milliseconds
-        System.out.println("Total time taken: " + totalTimeMillis + " ms");
+        if (verbose){
+            System.out.println("Total time taken: " + totalTimeMillis + " ms");
+        }
 
         double averageTimePerMessage = totalTimeMillis / messageNumber;
-        System.out.println("Average time per message: " + averageTimePerMessage + " ms");
+        if (verbose) {
+            System.out.println("Average time per message: " + averageTimePerMessage + " ms");
+        }
+
+        System.out.println(qos + " " + messageNumber + " " + topicNumber + " " + topicPrefix + " " + totalTimeMillis + " " + averageTimePerMessage);
 
         return 0;
     }
@@ -133,7 +153,7 @@ public class AsyncPublisher implements Callable<Integer> {
                                 .qos(MqttQos.fromCode(qos))
                                 .send())
                         .thenAccept(publishResult -> {
-                            if (! silent) {
+                            if (verbose) {
                                 System.out.println("Published " + sequentialMessageNumber + " / " + messageNumber);
                             }
                         });

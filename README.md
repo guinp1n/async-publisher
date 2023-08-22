@@ -14,13 +14,13 @@ The program can be executed from the command line, and it accepts the following 
 -   `--host`: The MQTT broker host. Default: localhost.
 -   `--port`: The MQTT broker port. Default: 1883.
 -   `--secure`: Use TLS for secure communication. Default: false.
--   `-u`, `--user`: Username for authentication. Default: None.
--   `-pw`, `--password`: Password or passphrase for authentication. Default: None.
+-   `--user`: Username for authentication. Default: None.
+-   `--password`: Password or passphrase for authentication. Default: None.
 -   `--topicPrefix`: Prefix for MQTT topics. Default: 'test/'.
 -   `--topicNumber`: Number of different topics to publish to. Default: 1000.
 -   `--messageNumber`: Total number of messages to publish. Default: 1000.
 -   `--qos`: Quality of Service level for published messages. Default: 1.
--   `--silent`: Suppress excessive output. Default: false.
+-   `--verbose`: Verbose output. Default: false.
 
 ## How It Works
 
@@ -39,13 +39,13 @@ The program can be executed from the command line, and it accepts the following 
 For example, connecting to HiveMQ Cloud and publishing 1000 messages distributed between 10 different topics like 'test/0', 'test/2',.. 'test/9' using QoS 0
 
 ```
-java -jar ./build/libs/async-publisher.jar --host starter-1.a01.euc1.aws.hivemq.cloud --port 8883 --secure --user MyUser --password MyPassword --qos 0 --messageNumber 1000 --topicNumber 10
+java -jar ./build/libs/async-publisher.jar --host starter-1.a01.euc1.aws.hivemq.cloud --port 8883 --secure --user MyUser --password MyPassword --qos 0 --messageNumber 1000 --topicNumber 10 --verbose
 ```
 
 For example, connecting to localhost:
 
 ```
-java -jar ./build/libs/async-publisher.jar --host localhost --port 1883 --qos 0 --messageNumber 1000 --topicNumber 10
+java -jar ./build/libs/async-publisher.jar --host localhost --port 1883 --qos 0 --messageNumber 10 --topicNumber 10 --verbose
 ```
 
 For example, getting help with the program arguments:
