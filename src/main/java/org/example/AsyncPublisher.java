@@ -57,8 +57,8 @@ public class AsyncPublisher implements Callable<Integer> {
     @CommandLine.Option(names = {"--qos"}, description = "QoS (Default: 1)", required = false)
     int qos=1;
 
-    @CommandLine.Option(names = {"-v"}, description = "verbose output (Default)", required = false)
-    boolean verbose = true;
+    @CommandLine.Option(names = {"--silent"}, description = "Silence some excessive output", required = false)
+    boolean silent = false;
 
     @Override
     public Integer call() throws Exception {
@@ -94,7 +94,7 @@ public class AsyncPublisher implements Callable<Integer> {
                 .send()
                 .thenAccept(connAck -> System.out.println("connected " + connAck))
                 .thenCompose(connAck -> publishMessages(client))
-                .thenAccept(publishResult -> System.out.println("published " + publishResult))
+                .thenAccept(publishResult -> System.out.println("published " + publishResult != null ? publishResult : ""))
                 .thenCompose(v -> client.disconnect())
                 .thenAccept(v -> System.out.println("disconnected"));
 
@@ -127,11 +127,13 @@ public class AsyncPublisher implements Callable<Integer> {
 
                 publishFuture = publishFuture.thenCompose(v -> client.publishWith()
                                 .topic(currentTopic)
-                                .payload(("Message " + currentMessageIndex).getBytes())
+                                .payload(("Message #" + (1+currentMessageIndex)
+                                        + " to topic " + currentTopic
+                                        + " QoS " + qos).getBytes())
                                 .qos(MqttQos.fromCode(qos))
                                 .send())
                         .thenAccept(publishResult -> {
-                            if (verbose) {
+                            if (! silent) {
                                 System.out.println("Published " + sequentialMessageNumber + " / " + messageNumber);
                             }
                         });
