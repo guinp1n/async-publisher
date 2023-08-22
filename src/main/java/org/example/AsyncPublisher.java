@@ -19,7 +19,6 @@ package org.example;
 import com.hivemq.client.mqtt.datatypes.MqttQos;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
-import com.hivemq.client.mqtt.mqtt5.message.connect.connack.Mqtt5ConnAck;
 
 import picocli.CommandLine;
 
@@ -67,7 +66,6 @@ public class AsyncPublisher implements Callable<Integer> {
         System.out.println("messageNumber: " + messageNumber);
         System.out.println("qos: " + qos);
 
-        //init();
         final Mqtt5AsyncClient client = Mqtt5Client.builder()
                 .serverHost(host)
                 .serverPort(port)
@@ -85,30 +83,32 @@ public class AsyncPublisher implements Callable<Integer> {
                 .thenCompose(v -> client.disconnect())
                 .thenAccept(v -> System.out.println("disconnected"));
 
-        System.out.println("see that everything above is async");
+        /*System.out.println("see that everything above is async");
         for (int i = 0; i < 5; i++) {
-            TimeUnit.MILLISECONDS.sleep(50);
+            TimeUnit.MILLISECONDS.sleep(1000);
             System.out.println("...");
-        }
+        }*/
 
         return 0;
     }
 
     private CompletableFuture<Void> publishMessages(Mqtt5AsyncClient client) {
         CompletableFuture<Void> publishFuture = CompletableFuture.completedFuture(null);
+        int messagesPerTopic = (int) Math.ceil((double) messageNumber / topicNumber);
 
         for (int topicIndex = 0; topicIndex < topicNumber ; topicIndex++) {
-            for (int messageIndex = 0; messageIndex < (int) Math.ceil((double) messageNumber / topicNumber); messageIndex++) {
+            for (int messageIndex = 0; messageIndex < messagesPerTopic; messageIndex++) {
                 final int currentTopicIndex = topicIndex;
                 final int currentMessageIndex = messageIndex;
+                final String currentTopic = topicPrefix + currentTopicIndex;
 
                 publishFuture = publishFuture.thenCompose(v -> client.publishWith()
-                                .topic("test/" + currentTopicIndex)
+                                .topic(currentTopic)
                                 .payload(("Message " + currentMessageIndex).getBytes())
                                 .qos(MqttQos.fromCode(qos))
                                 .send())
                         .thenAccept(publishResult -> System.out.println("Published message " +
-                                currentMessageIndex + " to topic" + currentTopicIndex));
+                                currentMessageIndex + " to topic " + currentTopic));
             }
         }
 

@@ -22,8 +22,9 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
     implementation("com.hivemq:hivemq-mqtt-client:1.3.0")
-    implementation("io.netty:netty-handler:4.1.77.Final")
-    implementation("io.netty:netty-all:4.1.77.Final")
+    implementation("io.netty:netty-all:4.1.48.Final")
+    implementation("io.netty:netty-handler:4.1.48.Final")
+    implementation("io.reactivex.rxjava2:rxjava:2.2.21")
     //implementation(platform("com.hivemq:hivemq-mqtt-client-websocket:1.2.2"))
     implementation("info.picocli:picocli:4.6.1")
     annotationProcessor("info.picocli:picocli-codegen:4.6.1")
@@ -41,14 +42,15 @@ tasks {
     }
 
     named<ShadowJar>("shadowJar") {
-        archiveFileName.set("async-publisher.jar") // Rename the JAR file as needed
 
         dependencies {
             include(dependency("info.picocli:picocli:4.6.1"))
             include(dependency("com.hivemq:hivemq-mqtt-client:1.3.0"))
-            include(dependency("io.netty:netty-handler:4.1.77.Final"))
-            include(dependency("io.netty:netty-all:4.1.77.Final"))
+            include(dependency("io.netty:netty-all:4.1.48.Final"))
+            include(dependency("io.netty:netty-handler:4.1.48.Final"))
+            include(dependency("io.reactivex.rxjava2:rxjava:2.2.21"))
         }
+        archiveFileName.set("async-publisher.jar") // Rename the JAR file as needed
     }
 }
 
