@@ -38,18 +38,21 @@ The program can be executed from the command line, and it accepts the following 
 
 For example, connecting to HiveMQ Cloud and publishing 1000 messages distributed between 10 different topics like 'test/0', 'test/2',.. 'test/9' using QoS 0
 
-``
+```
 java -jar ./build/libs/async-publisher.jar --host starter-1.a01.euc1.aws.hivemq.cloud --port 8883 --secure --user MyUser --password MyPassword --qos 0 --messageNumber 1000 --topicNumber 10
-``
+```
+
 For example, connecting to localhost:
-``
-java -jar ./build/libs/async-publisher.jar --host localhost --port 1883 --user MyUser --password MyPassword --qos 0 --messageNumber 1000 --topicNumber 10
-``
+
+```
+java -jar ./build/libs/async-publisher.jar --host localhost --port 1883 --qos 0 --messageNumber 1000 --topicNumber 10
+```
 
 For example, getting help with the program arguments:
-``
+
+```
 java -jar ./build/libs/async-publisher.jar --help
-``
+```
 
 Make sure to replace and adjust the command line parameters as needed.
 
