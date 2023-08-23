@@ -20,7 +20,7 @@ for %%q in (0 1 2) do (
     if %topicNumber% lss 1 goto :endloop
     echo Running #%runCount% with qos=!qos!, topicNumber=!topicNumber!, messageNumber=%messageNumber%
     for /f "delims=" %%r in ('java -jar "%JAR_PATH%" --host %host% --port %port% --secure ^
-        --user Starter1 --password Starter1 ^
+        --user MyUser --password MyPassword ^
         --topicNumber !topicNumber! --messageNumber %messageNumber% --qos !qos%'
     ) do (
         echo %%r >> %statistics%

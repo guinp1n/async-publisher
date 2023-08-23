@@ -21,7 +21,7 @@ for qos in {0..2}; do
     while (( topicNumber >= 1 )); do
         echo "Running #${runCount} with qos=${qos}, topicNumber=${topicNumber}, messageNumber=${messageNumber}"
         result=$(java -jar $JAR_PATH --host $host --port $port --secure \
-          --user Starter1 --password Starter1 \
+          --user MyUser --password MyPassword \
           --topicNumber ${topicNumber} --messageNumber ${messageNumber} --qos $qos)
 
         echo "$result" >> $statistics
