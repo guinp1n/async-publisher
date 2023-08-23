@@ -29,40 +29,44 @@ import java.util.concurrent.CompletableFuture;
 @CommandLine.Command(name = "publish", mixinStandardHelpOptions = true,
         description = "publishes N messages to M topics")
 public class AsyncPublisher implements Callable<Integer> {
-    private long startTime;
+    private long startTime = System.nanoTime();;
     private long endTime;
-    @CommandLine.Option(names = {"--host"}, description = "MQTT broker host (Default: localhost)", required = false)
+    @CommandLine.Option(names = {"--host"}, description = "MQTT broker host", required = false, defaultValue = "localhost",showDefaultValue = CommandLine.Help.Visibility.ALWAYS)
     String host = "localhost";
-    @CommandLine.Option(names = {"--port"}, description = "MQTT broker port (Default: 1883)", required = false)
+    @CommandLine.Option(names = {"--port"}, description = "MQTT broker port", required = false, defaultValue = "1883",showDefaultValue = CommandLine.Help.Visibility.ALWAYS)
     int port = 1883;
 
-    @CommandLine.Option(names = {"--secure"}, description = "Use TLS (Default: false)", required = false)
+    @CommandLine.Option(names = {"--secure"}, description = "Use TLS", required = false, defaultValue = "false",showDefaultValue = CommandLine.Help.Visibility.ALWAYS)
     boolean secure =false;
 
-    @CommandLine.Option(names = {"--user"}, description = "Username", defaultValue = "", required = false)
+    @CommandLine.Option(names = {"--user"}, description = "Username", defaultValue = "", required = false,showDefaultValue = CommandLine.Help.Visibility.ALWAYS)
     String user = "";
 
-    @CommandLine.Option(names = {"--password"}, description = "Passphrase", arity = "0..1", interactive = true, defaultValue = "", required = false)
+    @CommandLine.Option(names = {"--password"}, description = "Passphrase", arity = "0..1", interactive = true, defaultValue = "", required = false,showDefaultValue = CommandLine.Help.Visibility.ALWAYS)
     String password = "";
 
-    @CommandLine.Option(names = {"--topicPrefix"}, description = "Topic prefix (Default: 'test/')", required = false)
+    @CommandLine.Option(names = {"--topicPrefix"}, description = "Topic prefix", required = false, defaultValue = "test/",showDefaultValue = CommandLine.Help.Visibility.ALWAYS)
     String topicPrefix="test/";
 
-    @CommandLine.Option(names = {"--topicNumber"}, description = "How many different topics (Default: 1000)", required = false)
-    int topicNumber=1000;
+    @CommandLine.Option(names = {"--topicNumber"}, description = "How many different topics", required = false, defaultValue = "10",showDefaultValue = CommandLine.Help.Visibility.ALWAYS)
+    int topicNumber=10;
 
-    @CommandLine.Option(names = {"--messageNumber"}, description = "How many messages (Default: 1000)", required = false)
-    int messageNumber=1000;
+    @CommandLine.Option(names = {"--messageNumber"}, description = "How many messages", required = false, defaultValue = "10",showDefaultValue = CommandLine.Help.Visibility.ALWAYS)
+    int messageNumber=10;
 
-    @CommandLine.Option(names = {"--qos"}, description = "QoS (Default: 1)", required = false)
+    @CommandLine.Option(names = {"--qos"}, description = "QoS", required = false, defaultValue = "1",showDefaultValue = CommandLine.Help.Visibility.ALWAYS)
     int qos=1;
 
-    @CommandLine.Option(names = {"--verbose"}, description = "Verbose output", required = false)
+    @CommandLine.Option(names = {"--verbose"}, description = "Verbose output", required = false,showDefaultValue = CommandLine.Help.Visibility.ALWAYS)
     boolean verbose = false;
+
+    @CommandLine.Option(names = {"--clientId"}, description = "ClientId", required = false, defaultValue = "java_",showDefaultValue = CommandLine.Help.Visibility.ALWAYS)
+    String clientId="java_"+ startTime;
 
     @Override
     public Integer call() throws Exception {
         if (verbose) {
+            System.out.println("verbose: " + verbose);
             System.out.println("host: " + host);
             System.out.println("port: " + port);
             System.out.println("secure: " + secure);
@@ -72,6 +76,7 @@ public class AsyncPublisher implements Callable<Integer> {
             System.out.println("topicNumber: " + topicNumber);
             System.out.println("messageNumber: " + messageNumber);
             System.out.println("qos: " + qos);
+            System.out.println("clientId: " + clientId);
         }
 
         if (messageNumber < topicNumber){
@@ -79,7 +84,7 @@ public class AsyncPublisher implements Callable<Integer> {
         }
 
         final Mqtt5ClientBuilder clientBuilder = Mqtt5Client.builder()
-                .identifier("IAmJavaClient")
+                .identifier(clientId)
                 .serverHost(host)
                 .serverPort(port);
 
@@ -88,9 +93,6 @@ public class AsyncPublisher implements Callable<Integer> {
         }
 
         final Mqtt5AsyncClient client = clientBuilder.buildAsync();
-
-        // Record the start time
-        startTime = System.nanoTime();
 
         CompletableFuture<Void> publishFuture = client.connectWith()
                 .simpleAuth()
