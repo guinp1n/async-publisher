@@ -27,7 +27,7 @@ for %%q in (0 1 2) do (
     )
     echo ------------------------------------------------------
 
-    :: Calculate the next step size using the square root of the current topicNumber
+    :: Calculate the next step size using the half of the current topicNumber
     set /a "step_size=topicNumber / 2"
 
     :: Update topicNumber for the next iteration
