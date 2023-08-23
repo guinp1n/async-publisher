@@ -137,28 +137,28 @@ public class AsyncPublisher implements Callable<Integer> {
     private CompletableFuture<Void> publishMessages(Mqtt5AsyncClient client) {
         CompletableFuture<Void> publishFuture = CompletableFuture.completedFuture(null);
         int messagesPerTopic = (int) Math.ceil((double) messageNumber / topicNumber);
-        int messageCounter = 0; // Initialize the message counter
+        int messageCount = 0; // Initialize the message counter
 
-        for (int topicIndex = 0; topicIndex < topicNumber ; topicIndex++) {
-            for (int messageIndex = 0; messageIndex < messagesPerTopic; messageIndex++) {
-                final int currentTopicIndex = topicIndex;
-                final int currentMessageIndex = messageIndex;
-                final String currentTopic = topicPrefix + currentTopicIndex;
-                final int sequentialMessageNumber = messageCounter++; // Increment the counter
+        while (messageCount < messageNumber) {
+            int topicIndex = messageCount / messagesPerTopic;
+            int messageIndex = messageCount % messagesPerTopic;
 
-                publishFuture = publishFuture.thenCompose(v -> client.publishWith()
-                                .topic(currentTopic)
-                                .payload(("Message #" + (1+currentMessageIndex)
-                                        + " to topic " + currentTopic
-                                        + " QoS " + qos).getBytes())
-                                .qos(MqttQos.fromCode(qos))
-                                .send())
-                        .thenAccept(publishResult -> {
-                            if (verbose) {
-                                System.out.println("Published " + sequentialMessageNumber + " / " + messageNumber);
-                            }
-                        });
-            }
+            final String topic = topicPrefix + topicIndex;
+
+            publishFuture = publishFuture.thenCompose(v -> client.publishWith()
+                            .topic(topic)
+                            .payload(("Message #" + (1 + messageIndex)
+                                    + " to topic " + topic
+                                    + " QoS " + qos).getBytes())
+                            .qos(MqttQos.fromCode(qos))
+                            .send())
+                    .thenAccept(publishResult -> {
+                        if (verbose) {
+                            System.out.println("Published " + (1+messageIndex) + " / " + messageNumber);
+                        }
+                    });
+
+            messageCount++;
         }
 
         return publishFuture;
