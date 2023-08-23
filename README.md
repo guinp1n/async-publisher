@@ -18,10 +18,11 @@ The program can be executed from the command line and accepts the following para
 -   `--user`: Username for authentication. Default: None.
 -   `--password`: Password or passphrase for authentication. Default: None.
 -   `--topicPrefix`: Prefix for MQTT topics. Default: 'test/'.
--   `--topicNumber`: Number of different topics to publish to. Default: 1000.
--   `--messageNumber`: Total number of messages to publish. Default: 1000.
+-   `--topicNumber`: Number of different topics to publish to. Default: 10.
+-   `--messageNumber`: Total number of messages to publish. Default: 10.
 -   `--qos`: Quality of Service level for published messages. Default: 1.
 -   `--verbose`: Enable verbose output. Default: false.
+-   `--clientId`: Client id. Default: 'java_0123456789'.
 
 ## How It Works
 
@@ -62,7 +63,8 @@ For example, getting help with the program arguments:
 java -jar ./build/libs/async-publisher.jar --help
 ```
 
-## ♪
+
+
 
 Please note that this program is provided under the Apache License 2.0, so ensure compliance with the license terms if you choose to use or distribute it.
 
