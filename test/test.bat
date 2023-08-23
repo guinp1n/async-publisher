@@ -1,7 +1,7 @@
 @echo off
 
 :: Path to the JAR file
-set "JAR_PATH=..\async-publisher\build\libs\async-publisher.jar"
+set "JAR_PATH=..\build\libs\async-publisher.jar"
 
 set "host=starter1.a01.euc1.aws.hivemq.cloud"
 set "port=8883"

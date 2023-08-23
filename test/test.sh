@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
 # Path to the JAR file
-JAR_PATH="../async-publisher/build/libs/async-publisher.jar"
+#/Users/dsamkova/Projects/async-publisher/test/async-publisher.jar
+JAR_PATH="../build/libs/async-publisher.jar"
 
 host='starter1.a01.euc1.aws.hivemq.cloud'
 port=8883
@@ -10,7 +11,8 @@ messageNumber=${1:-999}
 statistics="stats-${messageNumber}.csv"
 
 # Create the CSV file and write headers
-echo "qos,messageNumber,topicNumber,topicPrefix,totalTimeMillis,avgTimeMillis" > $statistics
+#qos, messageNumber, topicNumber, topicPrefix, totalTimeMillis, averageTimePerMessage
+echo "qos,messageNumber,topicNumber,topicPrefix,totalTimeMillis,averageTimePerMessage" > $statistics
 
 runCount=0
 # Iterate over different qos levels
