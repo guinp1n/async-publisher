@@ -3,7 +3,7 @@
 # Path to the JAR file
 JAR_PATH="../async-publisher/build/libs/async-publisher.jar"
 
-host='destarter-2gombb.a01.euc1.aws.hivemq.cloud'
+host='starter1.a01.euc1.aws.hivemq.cloud'
 port=8883
 
 messageNumber=${1:-999}
