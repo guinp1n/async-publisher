@@ -48,35 +48,35 @@ public class AsyncPublisher implements Callable<Integer> {
     @CommandLine.Option(names = {"--topicPrefix"}, description = "Topic prefix", required = false, defaultValue = "test/",showDefaultValue = CommandLine.Help.Visibility.ALWAYS)
     String topicPrefix="test/";
 
-    @CommandLine.Option(names = {"--topicNumber"}, description = "How many different topics", required = false, defaultValue = "10",showDefaultValue = CommandLine.Help.Visibility.ALWAYS)
+    @CommandLine.Option(names = {"--topicNumber"}, description = "How many different topics", required = false, showDefaultValue = CommandLine.Help.Visibility.ALWAYS)
     int topicNumber=10;
 
-    @CommandLine.Option(names = {"--messageNumber"}, description = "How many messages", required = false, defaultValue = "10",showDefaultValue = CommandLine.Help.Visibility.ALWAYS)
+    @CommandLine.Option(names = {"--messageNumber"}, description = "How many messages", required = false,showDefaultValue = CommandLine.Help.Visibility.ALWAYS)
     int messageNumber=10;
 
-    @CommandLine.Option(names = {"--qos"}, description = "QoS", required = false, defaultValue = "1",showDefaultValue = CommandLine.Help.Visibility.ALWAYS)
+    @CommandLine.Option(names = {"--qos"}, description = "QoS", required = false, showDefaultValue = CommandLine.Help.Visibility.ALWAYS)
     int qos=1;
 
     @CommandLine.Option(names = {"--verbose"}, description = "Verbose output", required = false,showDefaultValue = CommandLine.Help.Visibility.ALWAYS)
     boolean verbose = false;
 
-    @CommandLine.Option(names = {"--clientId"}, description = "ClientId", required = false, defaultValue = "java_",showDefaultValue = CommandLine.Help.Visibility.ALWAYS)
+    @CommandLine.Option(names = {"--clientId"}, description = "ClientId", required = false,showDefaultValue = CommandLine.Help.Visibility.ALWAYS)
     String clientId="java_"+ startTime;
 
     @Override
     public Integer call() throws Exception {
         if (verbose) {
-            System.out.println("verbose: " + verbose);
-            System.out.println("host: " + host);
-            System.out.println("port: " + port);
-            System.out.println("secure: " + secure);
-            System.out.println("user: " + user);
-            System.out.println("password: " + password);
-            System.out.println("topicPrefix: " + topicPrefix);
-            System.out.println("topicNumber: " + topicNumber);
-            System.out.println("messageNumber: " + messageNumber);
-            System.out.println("qos: " + qos);
             System.out.println("clientId: " + clientId);
+            System.out.println("host: " + host);
+            System.out.println("messageNumber: " + messageNumber);
+            System.out.println("password: " + password);
+            System.out.println("port: " + port);
+            System.out.println("qos: " + qos);
+            System.out.println("secure: " + secure);
+            System.out.println("topicNumber: " + topicNumber);
+            System.out.println("topicPrefix: " + topicPrefix);
+            System.out.println("user: " + user);
+            System.out.println("verbose: " + verbose);
         }
 
         if (messageNumber < topicNumber){
