@@ -54,6 +54,9 @@ public class AsyncPublisher implements Callable<Integer> {
     @CommandLine.Option(names = {"--messageNumber"}, description = "How many messages", required = false,showDefaultValue = CommandLine.Help.Visibility.ALWAYS)
     int messageNumber=10;
 
+    @CommandLine.Option(names = {"--messageSizeBytes"}, description = "Size of payload of MQTT PUBLISH packet in bytes", required = false,showDefaultValue = CommandLine.Help.Visibility.ALWAYS)
+    int messageSizeBytes=10;
+
     @CommandLine.Option(names = {"--qos"}, description = "QoS", required = false, showDefaultValue = CommandLine.Help.Visibility.ALWAYS)
     int qos=1;
 
@@ -69,6 +72,7 @@ public class AsyncPublisher implements Callable<Integer> {
             System.out.println("clientId: " + clientId);
             System.out.println("host: " + host);
             System.out.println("messageNumber: " + messageNumber);
+            System.out.println("messageSizeBytes: " + messageSizeBytes);
             System.out.println("password: " + password);
             System.out.println("port: " + port);
             System.out.println("qos: " + qos);
@@ -130,8 +134,8 @@ public class AsyncPublisher implements Callable<Integer> {
             System.out.println("Average time per message: " + averageTimePerMessage + " ms");
         }
 
-        System.out.println(String.format("%s,%d,%d,%s,%.2f,%.2f",
-                qos, messageNumber, topicNumber, topicPrefix, totalTimeMillis, averageTimePerMessage));
+        System.out.println(String.format("%d,%d,%d,%d,%s,%.2f,%.2f",
+                qos, messageNumber, messageSizeBytes, topicNumber, topicPrefix, totalTimeMillis, averageTimePerMessage));
 
         return 0;
     }
@@ -146,6 +150,7 @@ public class AsyncPublisher implements Callable<Integer> {
             int messageIndex = messageCount % messagesPerTopic;
 
             final String topic = topicPrefix + topicIndex;
+            final String payload = generatePayload(messageIndex, topic, qos, messageSizeBytes);
 
             publishFuture = publishFuture.thenCompose(v -> client.publishWith()
                             .topic(topic)
@@ -164,6 +169,20 @@ public class AsyncPublisher implements Callable<Integer> {
         }
 
         return publishFuture;
+    }
+
+    private String generatePayload(int messageIndex, String topic, int qos, int messageSize) {
+        StringBuilder payloadBuilder = new StringBuilder();
+        payloadBuilder.append("Message #").append(1 + messageIndex)
+                .append(" to topic ").append(topic)
+                .append(" QoS ").append(qos);
+
+        String payload = payloadBuilder.toString();
+        while (payload.length() < messageSize) {
+            payload += " "; // Padding with spaces to reach the desired size
+        }
+
+        return payload.substring(0, messageSize); // Truncate to desired size
     }
 }
 
