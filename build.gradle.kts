@@ -42,7 +42,7 @@ tasks {
     }
 
     named<ShadowJar>("shadowJar") {
-        archiveFileName.set("async-publisher.jar") // Rename the JAR file as needed
+        archiveFileName.set("async-publisher-$version.jar") // Rename the JAR file as needed
     }
 }
 
